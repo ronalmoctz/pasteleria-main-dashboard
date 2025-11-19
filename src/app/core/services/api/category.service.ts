@@ -4,10 +4,9 @@ import { Observable } from 'rxjs';
 import { API_CONFIG } from '../../config/api.config';
 
 export interface Category {
-    id: string;
+    id: number;
     name: string;
     description?: string;
-    image?: string;
     created_at: string;
     updated_at?: string;
 }
@@ -15,6 +14,12 @@ export interface Category {
 export interface CategoriesResponse {
     success: boolean;
     data: Category[];
+    message: string;
+}
+
+export interface CategoryResponse {
+    success: boolean;
+    data: Category;
     message: string;
 }
 
@@ -31,6 +36,35 @@ export class CategoryService {
     getAllCategories(): Observable<CategoriesResponse> {
         return this.httpClient.get<CategoriesResponse>(
             `${this.apiBaseUrl}/categories`
+        );
+    }
+
+    /**
+     * Crea una nueva categoría
+     */
+    create(categoryData: Partial<Category>): Observable<CategoryResponse> {
+        return this.httpClient.post<CategoryResponse>(
+            `${this.apiBaseUrl}/categories`,
+            categoryData
+        );
+    }
+
+    /**
+     * Actualiza una categoría existente
+     */
+    update(categoryId: number, updates: Partial<Category>): Observable<CategoryResponse> {
+        return this.httpClient.put<CategoryResponse>(
+            `${this.apiBaseUrl}/categories/${categoryId}`,
+            updates
+        );
+    }
+
+    /**
+     * Elimina una categoría
+     */
+    delete(categoryId: number): Observable<CategoryResponse> {
+        return this.httpClient.delete<CategoryResponse>(
+            `${this.apiBaseUrl}/categories/${categoryId}`
         );
     }
 }

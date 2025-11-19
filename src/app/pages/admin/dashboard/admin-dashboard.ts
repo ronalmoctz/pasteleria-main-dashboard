@@ -1,31 +1,31 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../../core/services/auth/auth.service';
 import { LayoutComponent } from '../../../layout/layout';
 import { UserManagementComponent } from '../components/user-management';
 import { ProductManagementComponent } from '../components/product-management';
 import { CategoryManagementComponent } from '../components/category-management';
 import { IngredientManagementComponent } from '../components/ingredient-management';
+import { AdminDashboardFacade } from './services/admin-dashboard.facade';
+import { IconComponent } from '../../../shared/icon/icon';
 
 /**
- * Admin Dashboard Component
+ * Admin Dashboard Component - Componente Presentacional
  * 
- * Dashboard principal para usuarios con rol de administrador.
- * Proporciona acceso a funcionalidades administrativas como:
- * - Gestión de usuarios
- * - Gestión de productos
- * - Reportes y estadísticas
- * - Configuración del sistema
+ * Responsabilidad única: Renderizar la interfaz del dashboard
  * 
- * @requires authGuard - Requiere autenticación
- * @requires roleGuard(['admin']) - Requiere rol de administrador
+ * Patrón de diseño: Presentational Component
+ * La lógica de negocio está delegada al AdminDashboardFacade
+ * 
+ * Principios SOLID aplicados:
+ * - Single Responsibility: Solo maneja la presentación
+ * - Dependency Inversion: Depende del Facade (abstracción)
  */
 @Component({
   selector: 'app-admin-dashboard',
   imports: [
     LayoutComponent,
     CommonModule,
+    IconComponent,
     UserManagementComponent,
     ProductManagementComponent,
     CategoryManagementComponent,
@@ -38,7 +38,7 @@ import { IngredientManagementComponent } from '../components/ingredient-manageme
           <div class="welcome-section">
             <h1>Panel de Administración</h1>
             <p class="welcome-text">
-              Bienvenido, <strong>{{ userName() }}</strong>
+              Bienvenido, <strong>{{ facade.userName() }}</strong>
             </p>
           </div>
           <button class="logout-button" (click)="onLogout()">
@@ -50,109 +50,96 @@ import { IngredientManagementComponent } from '../components/ingredient-manageme
         <div class="tabs-navigation">
           <button 
             class="tab-button"
-            [class.active]="activeTab() === 'overview'"
-            (click)="setActiveTab('overview')"
+            [class.active]="facade.activeTab() === 'overview'"
+            (click)="onSetActiveTab('overview')"
           >
-            📊 Resumen
+            <app-icon name="dashboard" [size]="20" class="tab-icon"></app-icon>
+            Resumen
           </button>
           <button 
             class="tab-button"
-            [class.active]="activeTab() === 'users'"
-            (click)="setActiveTab('users')"
+            [class.active]="facade.activeTab() === 'users'"
+            (click)="onSetActiveTab('users')"
           >
-            👥 Usuarios
+            <app-icon name="user-cog" [size]="20" class="tab-icon"></app-icon>
+            Usuarios
           </button>
           <button 
             class="tab-button"
-            [class.active]="activeTab() === 'products'"
-            (click)="setActiveTab('products')"
+            [class.active]="facade.activeTab() === 'products'"
+            (click)="onSetActiveTab('products')"
           >
-            🧁 Productos
+            <app-icon name="cake" [size]="20" class="tab-icon"></app-icon>
+            Productos
           </button>
           <button 
             class="tab-button"
-            [class.active]="activeTab() === 'categories'"
-            (click)="setActiveTab('categories')"
+            [class.active]="facade.activeTab() === 'categories'"
+            (click)="onSetActiveTab('categories')"
           >
-            📂 Categorías
+            <app-icon name="shopping-cart" [size]="20" class="tab-icon"></app-icon>
+            Categorías
           </button>
           <button 
             class="tab-button"
-            [class.active]="activeTab() === 'ingredients'"
-            (click)="setActiveTab('ingredients')"
+            [class.active]="facade.activeTab() === 'ingredients'"
+            (click)="onSetActiveTab('ingredients')"
           >
-            🥘 Ingredientes
+            <app-icon name="receipt" [size]="20" class="tab-icon"></app-icon>
+            Ingredientes
           </button>
         </div>
 
         <!-- Tab Content -->
         <div class="tabs-content">
           <!-- Overview Tab -->
-          @if (activeTab() === 'overview') {
+          @if (facade.activeTab() === 'overview') {
             <div class="dashboard-content">
               <div class="stats-grid">
                 <div class="stat-card">
                   <h3>Usuarios</h3>
-                  <p class="stat-value">0</p>
+                  <p class="stat-value">{{ facade.stats().totalUsers }}</p>
                   <span class="stat-label">Total registrados</span>
                 </div>
                 
                 <div class="stat-card">
                   <h3>Productos</h3>
-                  <p class="stat-value">0</p>
+                  <p class="stat-value">{{ facade.stats().totalProducts }}</p>
                   <span class="stat-label">En catálogo</span>
                 </div>
                 
                 <div class="stat-card">
                   <h3>Categorías</h3>
-                  <p class="stat-value">0</p>
+                  <p class="stat-value">{{ facade.stats().totalCategories }}</p>
                   <span class="stat-label">Disponibles</span>
                 </div>
                 
                 <div class="stat-card">
                   <h3>Ingredientes</h3>
-                  <p class="stat-value">0</p>
+                  <p class="stat-value">{{ facade.stats().totalIngredients }}</p>
                   <span class="stat-label">En inventario</span>
-                </div>
-              </div>
-
-              <div class="quick-actions">
-                <h2>Acciones Rápidas</h2>
-                <div class="actions-grid">
-                  <button class="action-button" (click)="setActiveTab('users')">
-                    👥 Gestionar Usuarios
-                  </button>
-                  <button class="action-button" (click)="setActiveTab('products')">
-                    🧁 Gestionar Productos
-                  </button>
-                  <button class="action-button" (click)="setActiveTab('categories')">
-                    📂 Gestionar Categorías
-                  </button>
-                  <button class="action-button" (click)="setActiveTab('ingredients')">
-                    🥘 Gestionar Ingredientes
-                  </button>
                 </div>
               </div>
             </div>
           }
 
           <!-- Users Tab -->
-          @if (activeTab() === 'users') {
+          @if (facade.activeTab() === 'users') {
             <app-user-management></app-user-management>
           }
 
           <!-- Products Tab -->
-          @if (activeTab() === 'products') {
+          @if (facade.activeTab() === 'products') {
             <app-product-management></app-product-management>
           }
 
           <!-- Categories Tab -->
-          @if (activeTab() === 'categories') {
+          @if (facade.activeTab() === 'categories') {
             <app-category-management></app-category-management>
           }
 
           <!-- Ingredients Tab -->
-          @if (activeTab() === 'ingredients') {
+          @if (facade.activeTab() === 'ingredients') {
             <app-ingredient-management></app-ingredient-management>
           }
         </div>
@@ -162,8 +149,8 @@ import { IngredientManagementComponent } from '../components/ingredient-manageme
   styles: [`
     .admin-dashboard {
       padding: 2rem;
-      max-width: 1400px;
-      margin: 0 auto;
+      width: 100%;
+      margin: 0;
     }
 
     .dashboard-header {
@@ -209,7 +196,7 @@ import { IngredientManagementComponent } from '../components/ingredient-manageme
 
     .tabs-navigation {
       display: flex;
-      gap: 1rem;
+      gap: 0;
       margin-bottom: 2rem;
       border-bottom: 2px solid #e5e7eb;
       overflow-x: auto;
@@ -217,6 +204,7 @@ import { IngredientManagementComponent } from '../components/ingredient-manageme
     }
 
     .tab-button {
+      flex: 1;
       padding: 1rem 1.5rem;
       background: transparent;
       border: none;
@@ -227,6 +215,14 @@ import { IngredientManagementComponent } from '../components/ingredient-manageme
       transition: all 0.2s;
       white-space: nowrap;
       font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .tab-icon {
+      color: inherit;
     }
 
     .tab-button:hover {
@@ -250,6 +246,8 @@ import { IngredientManagementComponent } from '../components/ingredient-manageme
         opacity: 1;
       }
     }
+
+    .dashboard-content {
       display: flex;
       flex-direction: column;
       gap: 2rem;
@@ -298,37 +296,6 @@ import { IngredientManagementComponent } from '../components/ingredient-manageme
       color: #9ca3af;
     }
 
-    .quick-actions h2 {
-      margin: 0 0 1.5rem 0;
-      font-size: 1.5rem;
-      color: #1f2937;
-      font-weight: 700;
-    }
-
-    .actions-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-    }
-
-    .action-button {
-      padding: 1.25rem 1.5rem;
-      background: #3b82f6;
-      color: white;
-      border: none;
-      border-radius: 0.5rem;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.2s;
-      text-align: left;
-    }
-
-    .action-button:hover {
-      background: #2563eb;
-      transform: translateY(-2px);
-    }
-
     @media (max-width: 768px) {
       .admin-dashboard {
         padding: 1rem;
@@ -355,37 +322,34 @@ import { IngredientManagementComponent } from '../components/ingredient-manageme
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AdminDashboardComponent {
-  private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
-
-  // Signal para controlar la tab activa
-  readonly activeTab = signal<'overview' | 'users' | 'products' | 'categories' | 'ingredients'>('overview');
+export class AdminDashboardComponent implements OnInit, OnDestroy {
+  readonly facade = inject(AdminDashboardFacade);
 
   /**
-   * Computed signal que retorna el nombre completo del usuario
-   * Combina first_name y last_name del usuario autenticado
+   * Inicializa el dashboard y carga las estadísticas
    */
-  readonly userName = () => {
-    const user = this.authService.user();
-    if (!user) return 'Administrador';
-    return `${user.first_name} ${user.last_name}`;
-  };
+  ngOnInit(): void {
+    this.facade.initialize();
+  }
+
+  /**
+   * Limpia el estado del dashboard al destruir el componente
+   */
+  ngOnDestroy(): void {
+    this.facade.cleanup();
+  }
 
   /**
    * Cambia la tab activa
    */
-  setActiveTab(tab: 'overview' | 'users' | 'products' | 'categories' | 'ingredients'): void {
-    this.activeTab.set(tab);
+  onSetActiveTab(tab: 'overview' | 'users' | 'products' | 'categories' | 'ingredients'): void {
+    this.facade.setActiveTab(tab);
   }
 
   /**
    * Maneja el cierre de sesión del usuario
-   * - Limpia el estado de autenticación
-   * - Elimina tokens del localStorage
-   * - Redirige al login
    */
   onLogout(): void {
-    this.authService.logout();
+    this.facade.logout();
   }
 }

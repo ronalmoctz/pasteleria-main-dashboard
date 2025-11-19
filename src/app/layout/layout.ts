@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { SidebarComponent } from '../sidebar/sidebar';
+import { NotificationToastComponent } from '../shared/components/notification-toast/notification-toast.component';
 import { AuthService } from '../core/services/auth/auth.service';
 
 @Component({
   selector: 'app-layout',
-  imports: [SidebarComponent],
+  imports: [SidebarComponent, NotificationToastComponent],
   template: `
     <div class="layout-wrapper">
       <app-sidebar
@@ -17,6 +18,7 @@ import { AuthService } from '../core/services/auth/auth.service';
           <ng-content></ng-content>
         </div>
       </main>
+      <app-notification-toast></app-notification-toast>
     </div>
   `,
   styles: [

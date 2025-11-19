@@ -76,4 +76,23 @@ export class ProductService {
             graphqlQuery
         );
     }
+
+    /**
+     * Actualiza un producto existente
+     */
+    updateProduct(productId: string, updates: Partial<Product>): Observable<ProductResponse> {
+        return this.httpClient.put<ProductResponse>(
+            `${this.apiBaseUrl}/products/${productId}`,
+            updates
+        );
+    }
+
+    /**
+     * Elimina un producto
+     */
+    deleteProduct(productId: string): Observable<ProductResponse> {
+        return this.httpClient.delete<ProductResponse>(
+            `${this.apiBaseUrl}/products/${productId}`
+        );
+    }
 }

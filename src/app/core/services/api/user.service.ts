@@ -4,15 +4,16 @@ import { Observable } from 'rxjs';
 import { API_CONFIG } from '../../config/api.config';
 
 export interface User {
-    id: string;
+    id: string | number;
     email: string;
     first_name: string;
     last_name: string;
-    phone?: string;
+    phone_number?: string;
     role: 'admin' | 'customer';
     is_active?: boolean;
     created_at: string;
     updated_at?: string;
+    last_seen?: string | null;
 }
 
 export interface UserStatus {
@@ -115,6 +116,16 @@ export class UserService {
         return this.httpClient.patch<UserResponse>(
             `${this.apiBaseUrl}/users/${userId}`,
             updateData
+        );
+    }
+
+    /**
+     * Crea un nuevo usuario (POST) - requiere rol admin
+     */
+    createUser(userData: Partial<User>): Observable<UserResponse> {
+        return this.httpClient.post<UserResponse>(
+            `${this.apiBaseUrl}/users`,
+            userData
         );
     }
 

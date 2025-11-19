@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { LayoutComponent } from '../../../layout/layout';
+import { IconComponent } from '../../../shared/icon/icon';
 
 /**
  * Customer Dashboard Component
@@ -18,7 +20,7 @@ import { LayoutComponent } from '../../../layout/layout';
  */
 @Component({
   selector: 'app-customer-dashboard',
-  imports: [LayoutComponent],
+  imports: [LayoutComponent, CommonModule, IconComponent],
   template: `
     <app-layout>
       <div class="customer-dashboard">
@@ -47,16 +49,16 @@ import { LayoutComponent } from '../../../layout/layout';
             </div>
             
             <div class="info-card">
-              <div class="info-icon">❤️</div>
+              <app-icon name="user" [size]="40" class="info-icon"></app-icon>
               <div class="info-content">
-                <h3>Favoritos</h3>
-                <p class="info-value">0</p>
-                <span class="info-label">Productos guardados</span>
+                <h3>Mi Perfil</h3>
+                <p class="info-value">Actualizado</p>
+                <span class="info-label">Información personal</span>
               </div>
             </div>
             
             <div class="info-card">
-              <div class="info-icon">🛒</div>
+              <app-icon name="shopping-cart" [size]="40" class="info-icon"></app-icon>
               <div class="info-content">
                 <h3>Carrito</h3>
                 <p class="info-value">0</p>
@@ -70,7 +72,7 @@ import { LayoutComponent } from '../../../layout/layout';
             <h2>¿Qué deseas hacer hoy?</h2>
             <div class="navigation-grid">
               <button class="nav-card">
-                <div class="nav-icon">🧁</div>
+                <app-icon name="cake" [size]="40" class="nav-icon"></app-icon>
                 <div class="nav-content">
                   <h3>Explorar Productos</h3>
                   <p>Descubre nuestras deliciosas opciones</p>
@@ -78,7 +80,7 @@ import { LayoutComponent } from '../../../layout/layout';
               </button>
 
               <button class="nav-card">
-                <div class="nav-icon">📋</div>
+                <app-icon name="receipt" [size]="40" class="nav-icon"></app-icon>
                 <div class="nav-content">
                   <h3>Mis Pedidos</h3>
                   <p>Revisa el estado de tus pedidos</p>
@@ -86,7 +88,7 @@ import { LayoutComponent } from '../../../layout/layout';
               </button>
 
               <button class="nav-card">
-                <div class="nav-icon">👤</div>
+                <app-icon name="user" [size]="40" class="nav-icon"></app-icon>
                 <div class="nav-content">
                   <h3>Mi Perfil</h3>
                   <p>Actualiza tu información personal</p>
@@ -94,7 +96,7 @@ import { LayoutComponent } from '../../../layout/layout';
               </button>
 
               <button class="nav-card">
-                <div class="nav-icon">💳</div>
+                <app-icon name="shield-off" [size]="40" class="nav-icon"></app-icon>
                 <div class="nav-content">
                   <h3>Métodos de Pago</h3>
                   <p>Gestiona tus formas de pago</p>
@@ -195,8 +197,8 @@ import { LayoutComponent } from '../../../layout/layout';
     }
 
     .info-icon {
-      font-size: 2.5rem;
-      line-height: 1;
+      color: #3b82f6;
+      flex-shrink: 0;
     }
 
     .info-content h3 {
@@ -258,8 +260,8 @@ import { LayoutComponent } from '../../../layout/layout';
     }
 
     .nav-icon {
-      font-size: 2.5rem;
-      line-height: 1;
+      color: #8b5cf6;
+      flex-shrink: 0;
     }
 
     .nav-content h3 {
