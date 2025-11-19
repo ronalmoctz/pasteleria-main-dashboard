@@ -2,11 +2,12 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { Observable } from 'rxjs';
 import { tap, catchError, map } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { Order, OrderService } from '../../../../core/services/api/order.service';
+import { Order, OrderService, OrderStatus } from '../../../../core/services/api/order.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 
 export interface OrderManagementState {
     orders: Order[];
+    statuses: OrderStatus[];
     selectedOrder: Order | null;
     editingOrder: Order | null;
     deletingOrderId: number | null;
@@ -27,6 +28,7 @@ export class OrderManagementFacade {
 
     private readonly state = signal<OrderManagementState>({
         orders: [],
+        statuses: [],
         selectedOrder: null,
         editingOrder: null,
         deletingOrderId: null,
@@ -39,6 +41,7 @@ export class OrderManagementFacade {
     });
 
     readonly orders = computed(() => this.state().orders);
+    readonly statuses = computed(() => this.state().statuses);
     readonly selectedOrder = computed(() => this.state().selectedOrder);
     readonly editingOrder = computed(() => this.state().editingOrder);
     readonly deletingOrderId = computed(() => this.state().deletingOrderId);
@@ -66,11 +69,16 @@ export class OrderManagementFacade {
     });
 
     /**
-     * Carga la lista de pedidos
+     * Carga la lista de pedidos y estados
      */
     loadOrders(): void {
         this.setStateProperty('isLoading', true);
         this.setStateProperty('error', null);
+
+        // Load statuses first if empty
+        if (this.state().statuses.length === 0) {
+            this.loadStatuses();
+        }
 
         this.orderService.getAllOrders().pipe(
             tap((response: any) => {
@@ -83,6 +91,22 @@ export class OrderManagementFacade {
                 this.setStateProperty('error', message);
                 this.setStateProperty('isLoading', false);
                 this.notificationService.error('Error', message);
+                return of(null);
+            })
+        ).subscribe();
+    }
+
+    /**
+     * Carga los estados de los pedidos
+     */
+    loadStatuses(): void {
+        this.orderService.getAllOrderStatuses().pipe(
+            tap((response: any) => {
+                const statuses = response.data || response;
+                this.setStateProperty('statuses', Array.isArray(statuses) ? statuses : []);
+            }),
+            catchError(error => {
+                console.error('Error loading statuses', error);
                 return of(null);
             })
         ).subscribe();
@@ -121,6 +145,36 @@ export class OrderManagementFacade {
      */
     closeDeleteModal(): void {
         this.setStateProperty('deletingOrderId', null);
+    }
+
+    /**
+     * Crea un nuevo pedido
+     */
+    createOrder(order: Partial<Order>): Observable<Order> {
+        this.setStateProperty('isUpdating', true);
+        this.setStateProperty('error', null);
+
+        return new Observable(observer => {
+            this.orderService.createOrder(order).pipe(
+                map((response: any) => response.data || response),
+                tap((newOrder: Order) => {
+                    this.setStateProperty('orders', [newOrder, ...this.state().orders]);
+                    this.setStateProperty('isUpdating', false);
+                    this.closeEditModal();
+                    this.notificationService.success('Pedido creado', 'El pedido ha sido creado correctamente');
+                    observer.next(newOrder);
+                    observer.complete();
+                }),
+                catchError(error => {
+                    const message = error?.error?.message || 'Error creando pedido';
+                    this.setStateProperty('error', message);
+                    this.setStateProperty('isUpdating', false);
+                    this.notificationService.error('Error', message);
+                    observer.error(error);
+                    return of(null);
+                })
+            ).subscribe();
+        });
     }
 
     /**
@@ -206,6 +260,7 @@ export class OrderManagementFacade {
     resetState(): void {
         this.state.set({
             orders: [],
+            statuses: [],
             selectedOrder: null,
             editingOrder: null,
             deletingOrderId: null,

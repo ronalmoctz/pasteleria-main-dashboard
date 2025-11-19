@@ -5,20 +5,20 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 /**
  * Tipo de modal
  */
-export type ModalType = 'create' | 'edit' | 'view' | 'delete' | 'confirm';
+export type ModalType = 'create' | 'edit' | 'view' | 'delete' | 'confirm' | 'info';
 
 /**
  * Configuración del modal
  */
 export interface ModalConfig {
-    type: ModalType;
-    title: string;
-    subtitle?: string;
-    actionLabel?: string;
-    cancelLabel?: string;
-    isLoading?: boolean;
-    isDangerous?: boolean; // Para modales de eliminar
-    maxWidth?: string; // CSS max-width value
+  type: ModalType;
+  title: string;
+  subtitle?: string;
+  actionLabel?: string;
+  cancelLabel?: string;
+  isLoading?: boolean;
+  isDangerous?: boolean; // Para modales de eliminar
+  maxWidth?: string; // CSS max-width value
 }
 
 /**
@@ -36,10 +36,10 @@ export interface ModalConfig {
  * - Estados de carga
  */
 @Component({
-    selector: 'app-modal-dialog',
-    standalone: true,
-    imports: [CommonModule, ReactiveFormsModule],
-    template: `
+  selector: 'app-modal-dialog',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
+  template: `
     <div class="modal-overlay" (click)="onOverlayClick()">
       <div 
         class="modal" 
@@ -102,7 +102,7 @@ export interface ModalConfig {
       </div>
     </div>
   `,
-    styles: [`
+  styles: [`
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -314,25 +314,25 @@ export interface ModalConfig {
       }
     }
   `],
-    changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ModalDialogComponent {
-    readonly config = input.required<ModalConfig>();
-    readonly cancel = output<void>();
-    readonly confirm = output<void>();
+  readonly config = input.required<ModalConfig>();
+  readonly cancel = output<void>();
+  readonly confirm = output<void>();
 
-    onOverlayClick(): void {
-        // Solo cerrar en overlay click si no es peligroso
-        if (!this.config().isDangerous) {
-            this.onCancel();
-        }
+  onOverlayClick(): void {
+    // Solo cerrar en overlay click si no es peligroso
+    if (!this.config().isDangerous) {
+      this.onCancel();
     }
+  }
 
-    onCancel(): void {
-        this.cancel.emit();
-    }
+  onCancel(): void {
+    this.cancel.emit();
+  }
 
-    onConfirm(): void {
-        this.confirm.emit();
-    }
+  onConfirm(): void {
+    this.confirm.emit();
+  }
 }

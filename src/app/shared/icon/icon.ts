@@ -18,7 +18,9 @@ export type TablerIconName =
   | 'edit'
   | 'trash'
   | 'circle-check'
-  | 'plus';
+  | 'plus'
+  | 'search'
+  | 'loader';
 
 @Component({
   selector: 'app-icon',
@@ -89,7 +91,7 @@ export type TablerIconName =
           <path d="M9 9h6M9 13h6M9 17h2" />
         }
         @case ('user') {
-          <path d="M12 2c-3.314 0-6 2.686-6 6s2.686 6 6 6 6-2.686 6-6-2.686-6-6-6zm0 12c-3.314 0-6 2.686-6 6s2.686 6 6 6 6-2.686 6-6-2.686-6-6-6z" />
+          <path d="M12 2c-3.314 0-6 2.686-6 6s2.686 6 6 6 6-2.686 6-6-2.686-6-6-6zm0 12c-3.314 0-6 2.686-6 6s2.686 6 6 6 6-2.686 6-6-2.686-6-6-2.686-6-6-6z" />
           <circle cx="12" cy="8" r="4" />
           <path d="M5 20a7 7 0 1 1 14 0" />
         }
@@ -117,6 +119,13 @@ export type TablerIconName =
         @case ('plus') {
           <line x1="12" y1="5" x2="12" y2="19" />
           <line x1="5" y1="12" x2="19" y2="12" />
+        }
+        @case ('search') {
+          <circle cx="10" cy="10" r="7" />
+          <line x1="21" y1="21" x2="15" y2="15" />
+        }
+        @case ('loader') {
+          <path d="M12 3a9 9 0 1 0 9 9" />
         }
       }
     </svg>

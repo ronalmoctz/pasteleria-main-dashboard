@@ -52,7 +52,7 @@ import { IconComponent } from '../../../shared/icon/icon';
       <!-- Estados de carga, error y vacío -->
       @if (facade.isLoading()) {
         <div class="loading">
-          <app-icon name="circle-check" [size]="40" class="loading-icon"></app-icon>
+          <app-icon name="loader" [size]="40" class="loading-icon spin"></app-icon>
           <p>Cargando usuarios...</p>
         </div>
       } @else if (facade.error()) {
@@ -63,7 +63,7 @@ import { IconComponent } from '../../../shared/icon/icon';
         </div>
       } @else if (facade.filteredUsers().length === 0) {
         <div class="empty-state">
-          <app-icon name="shopping-cart" [size]="40" class="empty-icon"></app-icon>
+          <app-icon name="user" [size]="40" class="empty-icon"></app-icon>
           <p>No hay usuarios para mostrar</p>
         </div>
       } @else {
@@ -99,13 +99,13 @@ import { IconComponent } from '../../../shared/icon/icon';
                   <td>{{ user.created_at | date: 'dd/MM/yyyy' }}</td>
                   <td class="actions-cell">
                     <button class="action-btn icon-btn" (click)="onViewUser(user)" title="Ver detalles">
-                      <app-icon name="eye" [size]="18" class="icon-view"></app-icon>
+                      <app-icon name="eye" [size]="20" class="icon-view"></app-icon>
                     </button>
                     <button class="action-btn icon-btn" (click)="onEditUser(user)" title="Editar">
-                      <app-icon name="edit" [size]="18" class="icon-edit"></app-icon>
+                      <app-icon name="edit" [size]="20" class="icon-edit"></app-icon>
                     </button>
                     <button class="action-btn icon-btn" (click)="onConfirmDelete(user)" title="Eliminar">
-                      <app-icon name="trash" [size]="18" class="icon-delete"></app-icon>
+                      <app-icon name="trash" [size]="20" class="icon-delete"></app-icon>
                     </button>
                   </td>
                 </tr>
@@ -320,6 +320,19 @@ import { IconComponent } from '../../../shared/icon/icon';
     .loading-icon {
       color: #3b82f6;
       opacity: 0.7;
+    }
+
+    .spin {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     .loading p {

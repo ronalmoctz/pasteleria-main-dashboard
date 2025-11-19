@@ -1,25 +1,15 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { LayoutComponent } from '../../../layout/layout';
 import { UserManagementComponent } from '../components/user-management';
 import { ProductManagementComponent } from '../components/product-management';
 import { CategoryManagementComponent } from '../components/category-management';
 import { IngredientManagementComponent } from '../components/ingredient-management';
+import { OrderManagementComponent } from '../components/order-management';
 import { AdminDashboardFacade } from './services/admin-dashboard.facade';
 import { IconComponent } from '../../../shared/icon/icon';
 
-/**
- * Admin Dashboard Component - Componente Presentacional
- * 
- * Responsabilidad única: Renderizar la interfaz del dashboard
- * 
- * Patrón de diseño: Presentational Component
- * La lógica de negocio está delegada al AdminDashboardFacade
- * 
- * Principios SOLID aplicados:
- * - Single Responsibility: Solo maneja la presentación
- * - Dependency Inversion: Depende del Facade (abstracción)
- */
 @Component({
   selector: 'app-admin-dashboard',
   imports: [
@@ -29,7 +19,8 @@ import { IconComponent } from '../../../shared/icon/icon';
     UserManagementComponent,
     ProductManagementComponent,
     CategoryManagementComponent,
-    IngredientManagementComponent
+    IngredientManagementComponent,
+    OrderManagementComponent
   ],
   template: `
     <app-layout>
@@ -55,6 +46,14 @@ import { IconComponent } from '../../../shared/icon/icon';
           >
             <app-icon name="dashboard" [size]="20" class="tab-icon"></app-icon>
             Resumen
+          </button>
+          <button 
+            class="tab-button"
+            [class.active]="facade.activeTab() === 'orders'"
+            (click)="onSetActiveTab('orders')"
+          >
+            <app-icon name="shopping-cart" [size]="20" class="tab-icon"></app-icon>
+            Pedidos
           </button>
           <button 
             class="tab-button"
@@ -121,6 +120,11 @@ import { IconComponent } from '../../../shared/icon/icon';
                 </div>
               </div>
             </div>
+          }
+
+          <!-- Orders Tab -->
+          @if (facade.activeTab() === 'orders') {
+            <app-order-management></app-order-management>
           }
 
           <!-- Users Tab -->
@@ -324,12 +328,20 @@ import { IconComponent } from '../../../shared/icon/icon';
 })
 export class AdminDashboardComponent implements OnInit, OnDestroy {
   readonly facade = inject(AdminDashboardFacade);
+  private readonly route = inject(ActivatedRoute);
 
   /**
    * Inicializa el dashboard y carga las estadísticas
    */
   ngOnInit(): void {
     this.facade.initialize();
+
+    // Check for tab query param
+    this.route.queryParams.subscribe(params => {
+      if (params['tab']) {
+        this.onSetActiveTab(params['tab']);
+      }
+    });
   }
 
   /**
@@ -342,7 +354,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   /**
    * Cambia la tab activa
    */
-  onSetActiveTab(tab: 'overview' | 'users' | 'products' | 'categories' | 'ingredients'): void {
+  onSetActiveTab(tab: 'overview' | 'users' | 'products' | 'categories' | 'ingredients' | 'orders'): void {
     this.facade.setActiveTab(tab);
   }
 

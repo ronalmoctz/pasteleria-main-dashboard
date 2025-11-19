@@ -3,7 +3,7 @@
  * Define los tipos y estructuras de datos del dashboard
  */
 
-export type DashboardTab = 'overview' | 'users' | 'products' | 'categories' | 'ingredients';
+export type DashboardTab = 'overview' | 'users' | 'products' | 'categories' | 'ingredients' | 'orders';
 
 /**
  * Estadísticas del dashboard

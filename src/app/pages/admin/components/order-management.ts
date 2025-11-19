@@ -2,19 +2,27 @@ import { Component, OnInit, OnDestroy, inject, ChangeDetectionStrategy } from '@
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { OrderManagementFacade } from '../dashboard/services/order-management.facade';
-import { ModalDialogComponent } from '../../../shared/components/modal-dialog/modal-dialog.component';
+import { ModalDialogComponent, ModalConfig } from '../../../shared/components/modal-dialog/modal-dialog.component';
 import { Order } from '../../../core/services/api/order.service';
+import { IconComponent } from '../../../shared/icon/icon';
 
 @Component({
     selector: 'app-order-management',
     standalone: true,
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, ModalDialogComponent],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, ModalDialogComponent, IconComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <div class="order-management">
             <!-- Header -->
+            <!-- Header -->
             <div class="management-header">
-                <h2>📦 Gestión de Pedidos</h2>
+                <div class="header-content">
+                    <h2>Gestión de Pedidos</h2>
+                    <button class="btn-add" (click)="onCreateOrder()">
+                        <app-icon name="plus" [size]="20"></app-icon>
+                        Nuevo Pedido
+                    </button>
+                </div>
                 <div class="filter-bar">
                     <input
                         type="text"
@@ -27,27 +35,36 @@ import { Order } from '../../../core/services/api/order.service';
                         (change)="onStatusFilterChange($event)"
                     >
                         <option value="">Todos los estados</option>
-                        <option value="1">Pendiente</option>
-                        <option value="2">En proceso</option>
-                        <option value="3">Completado</option>
-                        <option value="4">Cancelado</option>
+                        @for (status of facade.statuses(); track status.id) {
+                            <option [value]="status.id">{{ status.status_name }}</option>
+                        }
                     </select>
                 </div>
             </div>
 
             <!-- Loading state -->
+            <!-- Loading state -->
             @if (facade.isLoading()) {
-                <div class="loading">Cargando pedidos...</div>
+                <div class="loading">
+                    <app-icon name="circle-check" [size]="40" class="loading-icon"></app-icon>
+                    <p>Cargando pedidos...</p>
+                </div>
             }
 
             <!-- Error state -->
+            <!-- Error state -->
             @if (facade.error()) {
-                <div class="error-message">{{ facade.error() }}</div>
+                <div class="error-message">
+                    <app-icon name="x" [size]="40" class="error-icon"></app-icon>
+                    <p>{{ facade.error() }}</p>
+                </div>
             }
 
             <!-- Empty state -->
+            <!-- Empty state -->
             @if (!facade.isLoading() && facade.orders().length === 0) {
                 <div class="empty-state">
+                    <app-icon name="shopping-cart" [size]="40" class="empty-icon"></app-icon>
                     <p>No hay pedidos disponibles</p>
                 </div>
             }
@@ -79,9 +96,15 @@ import { Order } from '../../../core/services/api/order.service';
                                     </td>
                                     <td>{{ order.order_date | date: 'dd/MM/yyyy HH:mm' }}</td>
                                     <td class="actions">
-                                        <button class="btn-view" (click)="onViewOrder(order)" title="Ver">👁️</button>
-                                        <button class="btn-edit" (click)="onEditOrder(order)" title="Editar">✏️</button>
-                                        <button class="btn-delete" (click)="onDeleteOrder(order.id)" title="Eliminar">🗑️</button>
+                                        <button class="btn-icon btn-view" (click)="onViewOrder(order)" title="Ver">
+                                            <app-icon name="eye" [size]="18"></app-icon>
+                                        </button>
+                                        <button class="btn-icon btn-edit" (click)="onEditOrder(order)" title="Editar">
+                                            <app-icon name="edit" [size]="18"></app-icon>
+                                        </button>
+                                        <button class="btn-icon btn-delete" (click)="onDeleteOrder(order.id)" title="Eliminar">
+                                            <app-icon name="trash" [size]="18"></app-icon>
+                                        </button>
                                     </td>
                                 </tr>
                             }
@@ -144,15 +167,7 @@ import { Order } from '../../../core/services/api/order.service';
             <!-- Edit Modal -->
             <app-modal-dialog
                 *ngIf="facade.editingOrder() as order"
-                [config]="{
-                    type: 'edit',
-                    title: 'Editar Pedido',
-                    subtitle: 'Modifica los datos del pedido',
-                    actionLabel: 'Guardar',
-                    isDangerous: false,
-                    isLoading: facade.isUpdating(),
-                    maxWidth: '600px'
-                }"
+                [config]="getEditModalConfig()"
                 (cancel)="facade.closeEditModal()"
                 (confirm)="onSaveChanges(order)"
             >
@@ -172,10 +187,9 @@ import { Order } from '../../../core/services/api/order.service';
                     <div class="form-group">
                         <label>Estado:</label>
                         <select [(ngModel)]="order.status_id" name="status_id" required>
-                            <option value="1">Pendiente</option>
-                            <option value="2">En proceso</option>
-                            <option value="3">Completado</option>
-                            <option value="4">Cancelado</option>
+                            @for (status of facade.statuses(); track status.id) {
+                                <option [value]="status.id">{{ status.status_name }}</option>
+                            }
                         </select>
                     </div>
                     <div class="form-group">
@@ -205,6 +219,14 @@ import { Order } from '../../../core/services/api/order.service';
                 (cancel)="facade.closeDeleteModal()"
                 (confirm)="onConfirmDelete()"
             >
+            >
+                <div class="danger-message">
+                    <app-icon name="trash" [size]="40" class="danger-icon"></app-icon>
+                    <p>¿Estás seguro?</p>
+                    <p class="danger-description">
+                        Esta acción no se puede deshacer. El pedido será eliminado permanentemente.
+                    </p>
+                </div>
             </app-modal-dialog>
         </div>
     `,
@@ -221,12 +243,41 @@ import { Order } from '../../../core/services/api/order.service';
             align-items: center;
             margin-bottom: 2rem;
             gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
         }
 
         .management-header h2 {
             margin: 0;
             font-size: 1.5rem;
             color: #1f2937;
+            font-weight: 700;
+        }
+
+        .btn-add {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9375rem;
+        }
+
+        .btn-add:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
         }
 
         .filter-bar {
@@ -256,15 +307,28 @@ import { Order } from '../../../core/services/api/order.service';
 
         .loading, .error-message, .empty-state {
             text-align: center;
-            padding: 2rem;
-            background: #f9fafb;
+            padding: 3rem 2rem;
+            background: white;
             border-radius: 0.75rem;
-            color: #6b7280;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
         }
 
+        .loading-icon { color: #3b82f6; opacity: 0.7; }
+        .empty-icon { color: #d1d5db; }
+        .error-icon { color: #ef4444; }
+
         .error-message {
-            color: #dc2626;
             background: #fef2f2;
+            border-left: 4px solid #ef4444;
+        }
+
+        .error-message p {
+            color: #991b1b;
+            margin: 0;
         }
 
         .table-container {
@@ -315,34 +379,46 @@ import { Order } from '../../../core/services/api/order.service';
 
         .status-1 { background: #fef3c7; color: #92400e; } /* Pendiente */
         .status-2 { background: #bfdbfe; color: #1e40af; } /* En proceso */
-        .status-3 { background: #bbf7d0; color: #065f46; } /* Completado */
-        .status-4 { background: #fecaca; color: #991b1b; } /* Cancelado */
+        .status-3 { background: #e9d5ff; color: #6b21a8; } /* Lista para recoger (Purple) */
+        .status-4 { background: #bbf7d0; color: #065f46; } /* Completado */
+        .status-5 { background: #fecaca; color: #991b1b; } /* Cancelado */
 
         .actions {
             display: flex;
             gap: 0.5rem;
         }
 
-        .btn-view, .btn-edit, .btn-delete {
-            padding: 0.5rem 0.75rem;
+        .btn-icon {
+            padding: 0.5rem;
             border: none;
             border-radius: 0.375rem;
             cursor: pointer;
-            font-size: 1rem;
             transition: all 0.2s;
             background: transparent;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
         }
 
-        .btn-view:hover {
-            background: #dbeafe;
+        .btn-view:hover { background: #dbeafe; color: #3b82f6; }
+        .btn-edit:hover { background: #fef3c7; color: #d97706; }
+        .btn-delete:hover { background: #fee2e2; color: #ef4444; }
+
+        .danger-message {
+            text-align: center;
+            padding: 1rem;
         }
 
-        .btn-edit:hover {
-            background: #fef3c7;
+        .danger-icon {
+            color: #ef4444;
+            margin-bottom: 1rem;
         }
 
-        .btn-delete:hover {
-            background: #fee2e2;
+        .danger-description {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
         }
 
         .modal-content {
@@ -438,6 +514,20 @@ import { Order } from '../../../core/services/api/order.service';
 export class OrderManagementComponent implements OnInit, OnDestroy {
     readonly facade = inject(OrderManagementFacade);
 
+    // Configuración dinámica del modal
+    getEditModalConfig(): ModalConfig {
+        const isNew = !this.facade.editingOrder()?.id;
+        return {
+            type: 'edit',
+            title: isNew ? 'Crear Pedido' : 'Editar Pedido',
+            subtitle: isNew ? 'Ingresa los datos del nuevo pedido' : 'Modifica los datos del pedido',
+            actionLabel: isNew ? 'Crear' : 'Guardar',
+            isDangerous: false,
+            isLoading: this.facade.isUpdating(),
+            maxWidth: '600px'
+        };
+    }
+
     ngOnInit(): void {
         this.facade.loadOrders();
     }
@@ -465,8 +555,25 @@ export class OrderManagementComponent implements OnInit, OnDestroy {
         this.facade.openEditModal(order);
     }
 
+    onCreateOrder(): void {
+        const newOrder: Partial<Order> = {
+            id: 0, // ID temporal para indicar creación
+            total_amount: 0,
+            status_id: 1,
+            special_instructions: '',
+            order_date: new Date().toISOString()
+        };
+        this.facade.openEditModal(newOrder as Order);
+    }
+
     onSaveChanges(order: Order): void {
-        this.facade.updateOrder(order.id, order).subscribe();
+        if (order.id === 0) {
+            // Es un nuevo pedido
+            const { id, ...createData } = order;
+            this.facade.createOrder(createData).subscribe();
+        } else {
+            this.facade.updateOrder(order.id, order).subscribe();
+        }
     }
 
     onDeleteOrder(orderId: number): void {
@@ -481,12 +588,7 @@ export class OrderManagementComponent implements OnInit, OnDestroy {
     }
 
     getStatusName(statusId: number): string {
-        const statusMap: { [key: number]: string } = {
-            1: 'Pendiente',
-            2: 'En proceso',
-            3: 'Completado',
-            4: 'Cancelado'
-        };
-        return statusMap[statusId] || 'Desconocido';
+        const status = this.facade.statuses().find(s => s.id === statusId);
+        return status ? status.status_name : 'Desconocido';
     }
 }

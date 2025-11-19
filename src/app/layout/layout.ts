@@ -9,8 +9,6 @@ import { AuthService } from '../core/services/auth/auth.service';
   template: `
     <div class="layout-wrapper">
       <app-sidebar
-        [adminName]="adminName()"
-        [adminProfileImage]="adminProfileImage()"
         (collapsedChange)="onSidebarCollapsed($event)"
       />
       <main class="layout" [class.sidebar-collapsed]="isSidebarCollapsed()">
