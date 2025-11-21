@@ -259,12 +259,12 @@ npm run build
 
 ## 👨‍💻 Author
 
-**Ronal Moctzuma**
+**Ronaldo Moctezuma**
 
-Frontend Developer | Angular Specialist | TypeScript Enthusiast
+Frontend Developer | Angular | TypeScript Enthusiast
 
-- Portfolio: [tu-portfolio.com](https://ronal-moctz.vercel.app/)
-- LinkedIn: [linkedin.com/in/tu-perfil](https://www.linkedin.com/in/ronaldo-moctezuma/)
+- Portfolio: [ronal-moctz.vercel.app](https://ronal-moctz.vercel.app/)
+- LinkedIn: [linkedin.com/in/ronaldo-moctezuma](https://www.linkedin.com/in/ronaldo-moctezuma/)
 - GitHub: [@ronalmoctz](https://github.com/ronalmoctz)
 
 ---
