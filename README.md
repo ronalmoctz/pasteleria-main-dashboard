@@ -285,8 +285,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**⭐ Si te gusta este proyecto, dale una estrella!**
+**⭐ Si te gusta este proyecto, dale una estrella!**s
 
-Made with ❤️ and ☕ by Ronal Moctzuma
+Made with ❤️ and ☕ by Ronaldo Moctezuma
 
 </div>
