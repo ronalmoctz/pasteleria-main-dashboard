@@ -176,7 +176,7 @@ API Calls:
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/pasteleria-web.git
+git clone https://github.com/ronalmoctz/pasteleria-web.git
 cd pasteleria-web
 
 # Install dependencies
@@ -263,8 +263,8 @@ npm run build
 
 Frontend Developer | Angular Specialist | TypeScript Enthusiast
 
-- Portfolio: [tu-portfolio.com](https://tu-portfolio.com)
-- LinkedIn: [linkedin.com/in/tu-perfil](https://linkedin.com/in/tu-perfil)
+- Portfolio: [tu-portfolio.com](https://ronal-moctz.vercel.app/)
+- LinkedIn: [linkedin.com/in/tu-perfil](https://www.linkedin.com/in/ronaldo-moctezuma/)
 - GitHub: [@ronalmoctz](https://github.com/ronalmoctz)
 
 ---
